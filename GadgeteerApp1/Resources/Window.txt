@@ -1,0 +1,8 @@
+<Glide Version="1.0.7">
+  <Window Name="window" Width="320" Height="240" BackColor="dce3e7">
+    <TextBlock Name="tbLight" X="0" Y="0" Width="148" Height="32" Alpha="255" Text="TextBlock" TextAlign="Center" TextVerticalAlign="Middle" Font="4" FontColor="0" BackColor="000000" ShowBackColor="False"/>
+    <TextBlock Name="tbTemp" X="172" Y="0" Width="148" Height="32" Alpha="255" Text="TextBlock" TextAlign="Center" TextVerticalAlign="Middle" Font="4" FontColor="0" BackColor="000000" ShowBackColor="False"/>
+    <TextBlock Name="tbMois" X="0" Y="36" Width="148" Height="32" Alpha="255" Text="TextBlock" TextAlign="Center" TextVerticalAlign="Middle" Font="4" FontColor="0" BackColor="000000" ShowBackColor="False"/>
+    <Image Name="image" X="0" Y="86" Width="160" Height="154" Alpha="255"/>
+  </Window>
+</Glide>
