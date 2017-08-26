@@ -12,6 +12,7 @@ using System.Threading;
 
 namespace SGService
 {
+    [ServiceBehavior]
     public class SmartService : ISmartService
     {
         MeasurementsController controller = new MeasurementsController();
@@ -24,13 +25,19 @@ namespace SGService
         public Measurement CreateMeasurement(string temperature, string light, string moisture)
         {
             Measurement m = new Measurement();
-            m.Light = Double.Parse(light);
+            m.Light = Double.Parse(light, CultureInfo.InvariantCulture);
             m.Moisture = Int32.Parse(moisture);
             m.Time = DateTime.Now;
-            m.Temperature = double.Parse(temperature);
+            m.Temperature = Double.Parse(temperature, CultureInfo.InvariantCulture);
 
             controller.PostMeasurement(m);
+
             return m;
+        }
+
+        public string GetTime()
+        {
+            return DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
         }
 
     }

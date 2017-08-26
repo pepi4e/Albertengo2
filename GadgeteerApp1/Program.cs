@@ -67,8 +67,6 @@ namespace GadgeteerApp1
             this.ethernet.NetworkUp += new GTM.Module.NetworkModule.NetworkEventHandler(ethernet_NetworkUp);
             this.ethernet.NetworkDown += new GTM.Module.NetworkModule.NetworkEventHandler(ethernet_NetworkDown);
             
-            //           TimeService.SystemTimeChanged += new SystemTimeChangedEventHandler(TimeService_SystemTimeChanged);
-            //         TimeService.TimeSyncFailed += new TimeSyncFailedEventHandler(TimeService_TimeSyncFailed);            
         }
 
         private void ethernet_NetworkUp(Module.NetworkModule sender, Module.NetworkModule.NetworkState state)
@@ -81,26 +79,7 @@ namespace GadgeteerApp1
             Debug.Print("Default Getway: " + ethernet.NetworkSettings.GatewayAddress);
             Debug.Print("DNS Server: " + ethernet.NetworkSettings.DnsAddresses[0]);
             Debug.Print("------------------------------------");
-
-       //     WebServer.StartLocalServer("127.0.0.1", 8080);
-
-            /*
-            TimeServiceSettings settings = new TimeServiceSettings();
-            settings.ForceSyncAtWakeUp = true;
-            settings.RefreshTime = 1800;    // in seconds.
-
-            IPAddress[] address = Dns.GetHostEntry("time-a.nist.gov").AddressList;
-            if (address != null && address.Length > 0)
-                settings.PrimaryServer = address[0].GetAddressBytes();
-
-            address = Dns.GetHostEntry("pool.ntp.org").AddressList;
-            if (address != null && address.Length > 0)
-                settings.AlternateServer = address[0].GetAddressBytes();
-
-            TimeService.Settings = settings;
-            TimeService.SetTimeZoneOffset(60);
-            TimeService.Start();
-            */
+            
             setNetwork(true);
         }
 
@@ -108,20 +87,7 @@ namespace GadgeteerApp1
         {
             Debug.Print("Disconnected from network.");
             setNetwork(false);
-        }
-
-        private void TimeService_SystemTimeChanged(object sender, SystemTimeChangedEventArgs e)
-        {
-            Debug.Print("Network time received.");
-            if (!TIME_SYNCHRONIZED)
-                setTimeSynch(true);
-        }
-
-        private void TimeService_TimeSyncFailed(object sender, TimeSyncFailedEventArgs e)
-        {
-            Debug.Print("Error synchronizing system time with NTP server: " + e.ErrorCode);
-            if ( TIME_SYNCHRONIZED )
-                setTimeSynch(false);
+            setTimeSynch(false);
         }
 
         private void loadTimers()
@@ -165,13 +131,21 @@ namespace GadgeteerApp1
                 return;
             }
 
-            /*
-            var req = HttpHelper.CreateHttpGetRequest(httpPath+"Schedules");
+            if ( !TIME_SYNCHRONIZED )
+            {
 
-            req.ResponseReceived += new HttpRequest.ResponseHandler(req_ResponseReceived);
-            req.SendRequest();
-            */
+                Debug.Print("Attempt B2 - Synchronizing Time Reference....");
+                GETContent get = new GETContent();
+                String pathB = httpPath + "SmartService.svc/web/Time/";
+                var reqB = HttpHelper.CreateHttpGetRequest(pathB, get);
+                Debug.Print("HTTP request to server: " + pathB);
+
+                reqB.ResponseReceived += new HttpRequest.ResponseHandler(req_ResponseReceived);
+                reqB.ResponseReceived += new HttpRequest.ResponseHandler(Synchronize_Time);
+                reqB.SendRequest();
+            }
             
+
         }
 
         private void timer_takePicture(GT.Timer timer)
@@ -202,58 +176,25 @@ namespace GadgeteerApp1
             TempHumidSI70.Measurement m = temp.TakeMeasurement();
             double l = light.ReadProportion();
             int mois = moisture.ReadMoisture();
-
-            
-            Measurement ms = new Measurement()
-            {
-                Time = DateTime.Now,
-                Temperature = m.Temperature,
-                Light = l,
-                Moisture = mois
-            }; 
   
-            Debug.Print("Measurement --- " + ms.Time.ToString() + ": - Light " + ms.Light
-                + " - Temperature " + ms.Temperature + " - Moisture " + ms.Moisture );
-
+            Debug.Print("Measurement --- Light " + l + " - Temperature " + m.Temperature + " - Moisture " + mois );
                
             if ( ! NETWORK_UP )
                 Debug.Print("Network down... not sending data to server.");
-         //   else if ( ! TIME_SYNCHRONIZED )
-           //     Debug.Print("Time not synchronized... not sending data to server.");
             else 
             {
                 Debug.Print("Sending data to server....");
 
-                /*
-                Debug.Print("Attempt A - Sending data to server using MfSvcUtil and built-in classes....");
-
-                tempuri.org.CreateMeasurement cm = new tempuri.org.CreateMeasurement();
-                cm.m = new schemas.datacontract.org.SGService.MeasurementContract();
-                cm.m.measurement = ms;
-                
-                //WebBinding b = new WebBinding(new HttpTransportBindingElement(new HttpTransportBindingConfig(new Uri("http://192.168.0.1:62607/"))));
-                //b.CreateClientChannel(new ClientBindingContext(new ProtocolVersion11()));
-                
-                ISmartServiceClientProxy scproxy = new ISmartServiceClientProxy(new WS2007HttpBinding(), new ProtocolVersion11());
-                scproxy.EndpointAddress = "http://192.168.0.1:62607/SmartService.svc";
-                scproxy.CreateMeasurement(cm);
-                */
-                
-                Debug.Print("Attempt B - Sending data to server using just POST....");
-
-                //Let's change the time so that it will get in the DB (time is Primary Key)
-                ms.Time = DateTime.Now;
+                Debug.Print("Attempt B1 - Sending data to server using just POST....");
 
                 POSTContent emptyPost = new POSTContent();
-
-                String path = httpPath + "SmartService.svc/Measurements/Create/" + ms.Temperature.ToString().Substring(0, 4) + "/" + ms.Light.ToString().Substring(0, 4) + "/" + ms.Moisture.ToString() + "/";
-                var req = HttpHelper.CreateHttpPostRequest(path, emptyPost, null);
-                
-                Debug.Print("HTTP request to server: " + path);
-                
-                req.ResponseReceived += new HttpRequest.ResponseHandler(req_ResponseReceived);
-                req.SendRequest();
-                
+                String pathA = httpPath + "SmartService.svc/web/Measurements/Create/" + m.Temperature.ToString().Substring(0, 4) +
+                               "/" + l.ToString().Substring(0, 4) + "/" + mois.ToString() + "/";
+                var reqA = HttpHelper.CreateHttpPostRequest(pathA, emptyPost, null);
+                Debug.Print("HTTP request to server: " + pathA);
+          
+                reqA.ResponseReceived += new HttpRequest.ResponseHandler(req_ResponseReceived);
+                reqA.SendRequest();
             }
 
             Thread.Sleep(1000);
@@ -262,7 +203,6 @@ namespace GadgeteerApp1
 
             if (AUTOPILOT && !IRRIGATING && checkIrrigationNecessary(m.Temperature, l, mois))
                 irrigate();
-
         }
 
         bool state = true;
@@ -270,6 +210,27 @@ namespace GadgeteerApp1
         {
             state = !state;
             ledStrip.SetLed(MEASUREMENT_LED, state);
+        }
+
+        private void Synchronize_Time(HttpRequest sender, HttpResponse response)
+        {
+            if (response.StatusCode == "200")
+            {
+
+                String content = response.Text;
+                Debug.Print("----------------------------------------------------------");
+                Debug.Print("Time Received... " + content + " trying to synchronize ....");
+                DateTime d = new DateTime(Int16.Parse(content.Substring(1, 4)), 
+                                          Int16.Parse(content.Substring(5, 2)),
+                                          Int16.Parse(content.Substring(7, 2)),
+                                          Int16.Parse(content.Substring(9, 2)),
+                                          Int16.Parse(content.Substring(11, 2)),
+                                          Int16.Parse(content.Substring(13, 2)));
+                TimeService.SetUtcTime(d.Ticks);
+                Debug.Print("Time Synchronized at " + d.ToString());
+                setTimeSynch(true);
+                Debug.Print("----------------------------------------------------------");
+            }
         }
 
         private void req_ResponseReceived(HttpRequest sender, HttpResponse response)

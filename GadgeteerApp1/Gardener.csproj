@@ -54,10 +54,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SmartService.cs" />
-    <Compile Include="SmartServiceClientProxy.cs" />
-    <Compile Include="SmartServiceHostedService.cs" />
-    <Compile Include="WebBinding.cs" />
+    <Compile Include="SmartService.svc.cs" />
+    <Compile Include="SmartService.svcClientProxy.cs" />
+    <Compile Include="SmartService.svcHostedService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Gadgeteer" />

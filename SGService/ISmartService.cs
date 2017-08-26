@@ -2,6 +2,7 @@
 using ClassLibrary3;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
@@ -14,14 +15,19 @@ namespace SGService
     public interface ISmartService
     {
         [OperationContract]
-        [WebGet(UriTemplate = "Measurements")]
+        [WebGet(UriTemplate = "/Measurements")]
         List<Measurement> GetMeasurements();
 
         [OperationContract]
         [WebInvoke(Method = "POST",
-                   UriTemplate = "Measurements/Create/{temperature}/{light}/{moisture}/")]
+                   UriTemplate = "/Measurements/Create/{temperature}/{light}/{moisture}/")]
         Measurement CreateMeasurement(string temperature, string light, string moisture);
 
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+                   UriTemplate = "/Time/",
+                   ResponseFormat = WebMessageFormat.Json)]
+        string GetTime();
     }
 
 
@@ -29,8 +35,12 @@ namespace SGService
     [DataContract]
     public class MeasurementContract
     {
-        [DataMember]
-        public Measurement measurement { get; set; }
+        [DataMember(IsRequired=true)]
+        public double temperature;
+        [DataMember(IsRequired = true)]
+        public double light;
+        [DataMember(IsRequired = true)]
+        public int moisture;
     }
 
 }

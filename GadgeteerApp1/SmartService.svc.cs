@@ -121,7 +121,7 @@ namespace tempuri.org
     {
         
         [DataMember(Order=0, IsNillable=true, IsRequired=false)]
-        public schemas.datacontract.org.SGService.MeasurementContract m;
+        public schemas.datacontract.org.SGService.MeasurementContract measurement;
     }
     
     public class CreateMeasurementDataContractSerializer : DataContractSerializer
@@ -144,9 +144,9 @@ namespace tempuri.org
             {
                 CreateMeasurementField = new CreateMeasurement();
                 reader.Read();
-                schemas.datacontract.org.SGService.MeasurementContractDataContractSerializer mDCS = new schemas.datacontract.org.SGService.MeasurementContractDataContractSerializer("m", "http://tempuri.org/", "http://schemas.datacontract.org/2004/07/SGService");
-                mDCS.BodyParts = this.BodyParts;
-                CreateMeasurementField.m = ((schemas.datacontract.org.SGService.MeasurementContract)(mDCS.ReadObject(reader)));
+                schemas.datacontract.org.SGService.MeasurementContractDataContractSerializer measurementDCS = new schemas.datacontract.org.SGService.MeasurementContractDataContractSerializer("measurement", "http://tempuri.org/", "http://schemas.datacontract.org/2004/07/SGService");
+                measurementDCS.BodyParts = this.BodyParts;
+                CreateMeasurementField.measurement = ((schemas.datacontract.org.SGService.MeasurementContract)(measurementDCS.ReadObject(reader)));
                 reader.ReadEndElement();
             }
             return CreateMeasurementField;
@@ -157,9 +157,9 @@ namespace tempuri.org
             CreateMeasurement CreateMeasurementField = ((CreateMeasurement)(graph));
             if (WriteParentElement(writer, true, true, graph))
             {
-                schemas.datacontract.org.SGService.MeasurementContractDataContractSerializer mDCS = new schemas.datacontract.org.SGService.MeasurementContractDataContractSerializer("m", "http://tempuri.org/", "http://schemas.datacontract.org/2004/07/SGService");
-                mDCS.BodyParts = this.BodyParts;
-                mDCS.WriteObject(writer, CreateMeasurementField.m);
+                schemas.datacontract.org.SGService.MeasurementContractDataContractSerializer measurementDCS = new schemas.datacontract.org.SGService.MeasurementContractDataContractSerializer("measurement", "http://tempuri.org/", "http://schemas.datacontract.org/2004/07/SGService");
+                measurementDCS.BodyParts = this.BodyParts;
+                measurementDCS.WriteObject(writer, CreateMeasurementField.measurement);
                 writer.WriteEndElement();
             }
             return;
@@ -169,9 +169,6 @@ namespace tempuri.org
     [DataContract(Namespace="http://tempuri.org/")]
     public class CreateMeasurementResponse
     {
-        
-        [DataMember(Order=0, IsNillable=true, IsRequired=false)]
-        public schemas.datacontract.org.ClassLibrary.Measurement CreateMeasurementResult;
     }
     
     public class CreateMeasurementResponseDataContractSerializer : DataContractSerializer
@@ -194,9 +191,6 @@ namespace tempuri.org
             {
                 CreateMeasurementResponseField = new CreateMeasurementResponse();
                 reader.Read();
-                schemas.datacontract.org.ClassLibrary.MeasurementDataContractSerializer CreateMeasurementResultDCS = new schemas.datacontract.org.ClassLibrary.MeasurementDataContractSerializer("CreateMeasurementResult", "http://tempuri.org/", "http://schemas.datacontract.org/2004/07/ClassLibrary3");
-                CreateMeasurementResultDCS.BodyParts = this.BodyParts;
-                CreateMeasurementResponseField.CreateMeasurementResult = ((schemas.datacontract.org.ClassLibrary.Measurement)(CreateMeasurementResultDCS.ReadObject(reader)));
                 reader.ReadEndElement();
             }
             return CreateMeasurementResponseField;
@@ -207,9 +201,6 @@ namespace tempuri.org
             CreateMeasurementResponse CreateMeasurementResponseField = ((CreateMeasurementResponse)(graph));
             if (WriteParentElement(writer, true, true, graph))
             {
-                schemas.datacontract.org.ClassLibrary.MeasurementDataContractSerializer CreateMeasurementResultDCS = new schemas.datacontract.org.ClassLibrary.MeasurementDataContractSerializer("CreateMeasurementResult", "http://tempuri.org/", "http://schemas.datacontract.org/2004/07/ClassLibrary3");
-                CreateMeasurementResultDCS.BodyParts = this.BodyParts;
-                CreateMeasurementResultDCS.WriteObject(writer, CreateMeasurementResponseField.CreateMeasurementResult);
                 writer.WriteEndElement();
             }
             return;
@@ -217,6 +208,10 @@ namespace tempuri.org
     }
     
     [ServiceContract(Namespace="http://tempuri.org/")]
+    [PolicyAssertion(Namespace="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702", Name="SymmetricBinding", PolicyID="WS2007HttpBinding_ISmartService_policy")]
+    [PolicyAssertion(Namespace="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702", Name="Wss11", PolicyID="WS2007HttpBinding_ISmartService_policy")]
+    [PolicyAssertion(Namespace="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702", Name="Trust13", PolicyID="WS2007HttpBinding_ISmartService_policy")]
+    [PolicyAssertion(Namespace="http://www.w3.org/2006/05/addressing/wsdl", Name="UsingAddressing", PolicyID="WS2007HttpBinding_ISmartService_policy")]
     public interface IISmartService
     {
         
@@ -397,8 +392,14 @@ namespace schemas.datacontract.org.SGService
     public class MeasurementContract
     {
         
-        [DataMember(Order=0, IsNillable=true, IsRequired=false)]
-        public schemas.datacontract.org.ClassLibrary.Measurement measurement;
+        [DataMember(Order=0)]
+        public double light;
+        
+        [DataMember(Order=1)]
+        public int moisture;
+        
+        [DataMember(Order=2)]
+        public double temperature;
     }
     
     public class MeasurementContractDataContractSerializer : DataContractSerializer
@@ -421,9 +422,24 @@ namespace schemas.datacontract.org.SGService
             {
                 MeasurementContractField = new MeasurementContract();
                 reader.Read();
-                schemas.datacontract.org.ClassLibrary.MeasurementDataContractSerializer measurementDCS = new schemas.datacontract.org.ClassLibrary.MeasurementDataContractSerializer("measurement", "http://schemas.datacontract.org/2004/07/SGService", "http://schemas.datacontract.org/2004/07/ClassLibrary3");
-                measurementDCS.BodyParts = this.BodyParts;
-                MeasurementContractField.measurement = ((schemas.datacontract.org.ClassLibrary.Measurement)(measurementDCS.ReadObject(reader)));
+                if (IsChildStartElement(reader, "light", false, true))
+                {
+                    reader.Read();
+                    MeasurementContractField.light = XmlConvert.ToDouble(reader.ReadString());
+                    reader.ReadEndElement();
+                }
+                if (IsChildStartElement(reader, "moisture", false, true))
+                {
+                    reader.Read();
+                    MeasurementContractField.moisture = XmlConvert.ToInt32(reader.ReadString());
+                    reader.ReadEndElement();
+                }
+                if (IsChildStartElement(reader, "temperature", false, true))
+                {
+                    reader.Read();
+                    MeasurementContractField.temperature = XmlConvert.ToDouble(reader.ReadString());
+                    reader.ReadEndElement();
+                }
                 reader.ReadEndElement();
             }
             return MeasurementContractField;
@@ -434,9 +450,21 @@ namespace schemas.datacontract.org.SGService
             MeasurementContract MeasurementContractField = ((MeasurementContract)(graph));
             if (WriteParentElement(writer, true, true, graph))
             {
-                schemas.datacontract.org.ClassLibrary.MeasurementDataContractSerializer measurementDCS = new schemas.datacontract.org.ClassLibrary.MeasurementDataContractSerializer("measurement", "http://schemas.datacontract.org/2004/07/SGService", "http://schemas.datacontract.org/2004/07/ClassLibrary3");
-                measurementDCS.BodyParts = this.BodyParts;
-                measurementDCS.WriteObject(writer, MeasurementContractField.measurement);
+                if (WriteChildElement(writer, "light", false, true, MeasurementContractField.light))
+                {
+                    writer.WriteString(XmlConvert.ToString(MeasurementContractField.light));
+                    writer.WriteEndElement();
+                }
+                if (WriteChildElement(writer, "moisture", false, true, MeasurementContractField.moisture))
+                {
+                    writer.WriteString(XmlConvert.ToString(MeasurementContractField.moisture));
+                    writer.WriteEndElement();
+                }
+                if (WriteChildElement(writer, "temperature", false, true, MeasurementContractField.temperature))
+                {
+                    writer.WriteString(XmlConvert.ToString(MeasurementContractField.temperature));
+                    writer.WriteEndElement();
+                }
                 writer.WriteEndElement();
             }
             return;
